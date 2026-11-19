@@ -2,6 +2,7 @@ import importlib.util
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 SOURCE = Path(__file__).resolve().parents[1] / "scripts" / "wifi_engineer.py"
 spec = importlib.util.spec_from_file_location("wifi_engineer", SOURCE)
@@ -38,6 +39,30 @@ class ValidationTests(unittest.TestCase):
         with self.assertRaises(wifi.DiagnosticError): wifi.trace_route("localhost",100)
     def test_dns_type(self):
         with self.assertRaises(wifi.DiagnosticError): wifi.resolve_dns("localhost","MX")
+
+class PingPlatformTests(unittest.TestCase):
+    def assert_ping_command(self, os_name, timeout, expected_wait):
+        with patch.object(wifi, "os_family", return_value=os_name), \
+             patch.object(wifi, "run_command", return_value={"returncode": 0}) as run:
+            wifi.ping_host("example.com", count=2, timeout=timeout)
+        command = run.call_args.args[0]
+        self.assertEqual(command[-3:], ["-W", str(expected_wait), "example.com"])
+        self.assertEqual(command[command.index("-c") + 1], "2")
+        self.assertEqual(run.call_args.args[1], 2 * timeout + 5)
+
+    def test_linux_timeout_uses_rounded_up_seconds(self):
+        self.assert_ping_command("linux", 1.1, 2)
+
+    def test_macos_timeout_uses_milliseconds(self):
+        self.assert_ping_command("macos", 1.1, 1100)
+
+    def test_windows_timeout_uses_milliseconds(self):
+        with patch.object(wifi, "os_family", return_value="windows"), \
+             patch.object(wifi, "run_command", return_value={"returncode": 0}) as run:
+            wifi.ping_host("example.com", count=2, timeout=1.1)
+        self.assertEqual(run.call_args.args[0], ["ping", "-n", "2", "-w", "1100", "example.com"])
+        self.assertEqual(run.call_args.args[1], 2 * 1.1 + 5)
+
 
 class ReportTests(unittest.TestCase):
     def test_json_report(self):
