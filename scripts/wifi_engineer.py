@@ -137,8 +137,8 @@ def write_report(data: dict[str, Any],output: str,fmt: str) -> Path:
             for i,v in enumerate(obj): flatten(v,f"{prefix}[{i}].")
         else: rows.append((prefix.rstrip("."),str(obj)))
     flatten(data)
-    if fmt=="json": p.write_text(json.dumps(data,indent=2,ensure_ascii=False)+"\\n",encoding="utf-8")
-    elif fmt=="txt": p.write_text("\\n".join(f"{k} = {v}" for k,v in rows)+"\\n",encoding="utf-8")
+    if fmt=="json": p.write_text(json.dumps(data,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
+    elif fmt=="txt": p.write_text("\n".join(f"{k} = {v}" for k,v in rows)+"\n",encoding="utf-8")
     elif fmt=="csv":
         with p.open("w",newline="",encoding="utf-8") as f:
             w=csv.writer(f); w.writerow(["field","value"]); w.writerows(rows)
