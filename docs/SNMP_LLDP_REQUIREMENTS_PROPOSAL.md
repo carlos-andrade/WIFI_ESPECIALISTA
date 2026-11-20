@@ -1,6 +1,6 @@
 # Proposta de Requisitos — Módulos SNMP e LLDP
 **Documento:** PROPOSTA — não aprovado para implementação  
-**Versão:** 1.1  
+**Versão:** 1.2  
 **Estado:** Requisitos parciais aprovados; decisões técnicas e revisão documental pendentes  
 **Projeto:** WIFI_ESPECIALISTA
 
@@ -63,11 +63,11 @@ CDP, descoberta por broadcast e protocolos proprietários ficam fora deste âmbi
 
 A matriz final depende da biblioteca selecionada, do suporte a sockets UDP, da gestão segura de credenciais e da execução nos runners CI disponíveis. Não assumir paridade entre plataformas sem testes.
 
-## 5. Decisões técnicas ainda abertas
+## 5. Biblioteca candidata e decisões técnicas ainda abertas
 
 As decisões seguintes exigem revisão antes da implementação:
 
-- Biblioteca SNMP Python e respetiva licença, manutenção, dependências e compatibilidade com Python 3.10+.
+- Avaliação final da biblioteca SNMP, dependências, manutenção e compatibilidade multiplataforma após prova de conceito.
 - Algoritmos SNMPv3 de autenticação e privacidade suportados pela biblioteca e compatibilidade com equipamentos-alvo.
 - Lista inicial e versão dos MIBs/OIDs suportados.
 - Estratégia de normalização dos resultados entre fabricantes.
@@ -80,7 +80,7 @@ As decisões seguintes exigem revisão antes da implementação:
 - SNMPv1 e SNMPv2c excluídos da primeira versão; apenas SNMPv3 authPriv.
 - Credenciais solicitadas por prompt interativo com entrada oculta (getpass), mantidas apenas em memória durante a consulta, sem persistência.
 
-Nenhuma biblioteca SNMP foi selecionada ou aprovada. As decisões acima não autorizam início de implementação.
+**Biblioteca aprovada apenas como candidata para prova de conceito isolada:** `pysnmplib==6.0.0` (distribuição PyPI; projeto upstream `pysnmp/pysnmp`). Esta aprovação não equivale a adoção em produção, não autoriza adicionar a dependência ao runtime principal e não autoriza integração no CLI. A prova de conceito deverá permanecer isolada e validar SNMPv3 authPriv, entrada oculta de credenciais, sanitização de erros e compatibilidade com Python 3.10+ em Linux e Windows. A dependência criptográfica necessária para privacidade deverá ser inspecionada e fixada explicitamente; não instalar extras de compilação MIB sem requisito separado.
 
 ## 6. Interface CLI proposta
 
@@ -144,7 +144,7 @@ Estes itens exigem requisitos e aprovação separados.
 
 ### 10.2 Decisões pendentes
 
-- [ ] Biblioteca SNMP, licença, manutenção e dependências.
+- [x] Candidata para prova de conceito: `pysnmplib==6.0.0` (não aprovada para produção).
 - [ ] Algoritmos de autenticação/privacidade SNMPv3 suportados.
 - [ ] MIBs/OIDs iniciais e modelo de normalização.
 - [ ] Matriz de plataformas comprovada por testes.
@@ -159,3 +159,5 @@ Estes itens exigem requisitos e aprovação separados.
 - **2026-11-20:** responsável aprovou SNMPv3 authPriv exclusivamente, excluindo SNMPv1 e SNMPv2c.
 - **2026-11-20:** responsável aprovou recolha interativa de credenciais com entrada oculta (getpass), sem exposição em argumentos, logs ou relatórios e sem persistência.
 - **2026-11-20:** versão 1.1 consolida documentalmente as decisões anteriores. A proposta continua sujeita às decisões pendentes e à revisão final.
+- **2026-11-20:** responsável aprovou `pysnmplib==6.0.0` exclusivamente como candidata para prova de conceito isolada, sem adoção no runtime principal ou aprovação para produção.
+- **2026-11-20:** versão 1.2 regista a aprovação limitada da biblioteca e define o escopo da prova de conceito.
