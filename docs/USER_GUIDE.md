@@ -4,6 +4,7 @@
 - Python 3.10 or newer.
 - Linux or Windows; macOS best-effort.
 - Native tools: Linux ip, Windows ipconfig/route/netsh, ping; traceroute on Linux/macOS.
+- Ping timeout units are normalized by the CLI: seconds on Linux, milliseconds on Windows and macOS.
 - Linux Wi-Fi: nmcli (preferred) or iw.
 - No pip dependencies in v0.1.0.
 

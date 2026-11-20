@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """WIFI_ESPECIALISTA Network Engineer Toolkit: safe, cross-platform diagnostics."""
 from __future__ import annotations
-import argparse, csv, ipaddress, json, platform, shutil, socket, subprocess, sys, time
+import argparse, csv, ipaddress, json, math, platform, shutil, socket, subprocess, sys, time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -87,8 +87,16 @@ def ping_host(host: str,count: int=4,timeout: float=3.0) -> dict[str, Any]:
     if not 1<=count<=20: raise DiagnosticError("Ping count must be between 1 and 20")
     if not 0<timeout<=30: raise DiagnosticError("Timeout must be > 0 and <= 30 seconds")
     osn=os_family()
-    if osn=="windows": cmd=["ping","-n",str(count),"-w",str(int(timeout*1000)),host]
-    elif osn in {"linux","macos"}: cmd=["ping","-c",str(count),"-W",str(max(1,int(timeout))),host]
+    if osn=="windows":
+        wait_value=max(1,math.ceil(timeout*1000))
+        cmd=["ping","-n",str(count),"-w",str(wait_value),host]
+    elif osn=="linux":
+        wait_value=max(1,math.ceil(timeout))
+        cmd=["ping","-c",str(count),"-W",str(wait_value),host]
+    elif osn=="macos":
+        # macOS ping -W expects milliseconds; Linux iputils expects seconds.
+        wait_value=max(1,math.ceil(timeout*1000))
+        cmd=["ping","-c",str(count),"-W",str(wait_value),host]
     else: raise DiagnosticError(f"Unsupported operating system: {osn}")
     r=run_command(cmd,count*timeout+5); r["target"]=host; return r
 
